@@ -1,3 +1,4 @@
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_xpbd_2d::prelude::*;
 use planet::PlanetPlugin;
@@ -10,9 +11,13 @@ fn main() {
     App::new()
         .add_plugins((DefaultPlugins, PhysicsPlugins::default()))
         .add_plugins((PlanetPlugin, PlayerPlugin))
+        .add_plugins((
+            LogDiagnosticsPlugin::default(),
+            FrameTimeDiagnosticsPlugin::default(),
+        ))
         .insert_resource(FixedTime::new_from_secs(1. / 60.))
         .add_systems(Startup, setup)
-        .add_systems(PostUpdate, update_camera.after(PhysicsSet::Sync))
+        .add_systems(FixedUpdate, update_camera)
         .run();
 }
 
@@ -47,7 +52,7 @@ fn update_camera(
     let player_position = player_position_query.get_single().unwrap().extend(1.);
     let mut transform = camera_query.get_single_mut().unwrap();
 
-    let dir = player_position - transform.translation;
-
-    transform.translation += dir * 2. * time.delta_seconds();
+    transform.translation = transform
+        .translation
+        .lerp(player_position, time.delta_seconds() * 10.);
 }
