@@ -39,12 +39,12 @@ fn setup_player(
     commands.spawn(PlayerBundle {
         player: Player,
         mesh: ColorMesh2dBundle {
-            mesh: meshes.add(shape::Circle::new(5.).into()).into(),
+            mesh: meshes.add(shape::Circle::new(15.).into()).into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
             ..default()
         },
         rigid_body: RigidBody::Dynamic,
-        collider: Collider::ball(5.),
+        collider: Collider::ball(15.),
         position: Position(Vec2::new(1200., 0.)),
         locked_axes: LockedAxes::new().lock_rotation(),
         external_force: ExternalForce::new(Vec2::ZERO).with_persistence(false),

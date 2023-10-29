@@ -31,7 +31,7 @@ fn setup(mut commands: Commands) {
         camera: Camera2dBundle {
             transform: Transform::from_xyz(1200., 0., 1.),
             projection: OrthographicProjection {
-                scale: 2.,
+                scale: 1.,
                 ..default()
             },
             ..default()
@@ -41,15 +41,10 @@ fn setup(mut commands: Commands) {
 
 fn update_camera(
     player_position_query: Query<&Position, With<Player>>,
-    mut camera_query: Query<(&mut OrthographicProjection, &mut Transform), With<PlayerCamera>>,
-    time: Res<Time>,
+    mut camera_query: Query<&mut Transform, With<PlayerCamera>>,
 ) {
-    let player_position = player_position_query.get_single().unwrap();
-    let (mut projection, mut transform) = camera_query.get_single_mut().unwrap();
+    let player_position = player_position_query.get_single().unwrap().extend(1.);
+    let mut transform = camera_query.get_single_mut().unwrap();
 
-    let target = player_position.extend(1.);
-    let dir = (target - transform.translation).normalize_or_zero();
-
-    transform.translation += dir * 500. * time.delta_seconds();
-    projection.scale = 1.;
+    transform.translation = transform.translation.lerp(player_position, 0.03);
 }
