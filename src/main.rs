@@ -12,7 +12,7 @@ fn main() {
         .add_plugins((PlanetPlugin, PlayerPlugin))
         .insert_resource(FixedTime::new_from_secs(1. / 60.))
         .add_systems(Startup, setup)
-        .add_systems(PostUpdate, update_camera)
+        .add_systems(PostUpdate, update_camera.after(PhysicsSet::Sync))
         .run();
 }
 
@@ -42,9 +42,12 @@ fn setup(mut commands: Commands) {
 fn update_camera(
     player_position_query: Query<&Position, With<Player>>,
     mut camera_query: Query<&mut Transform, With<PlayerCamera>>,
+    time: Res<Time>,
 ) {
     let player_position = player_position_query.get_single().unwrap().extend(1.);
     let mut transform = camera_query.get_single_mut().unwrap();
 
-    transform.translation = transform.translation.lerp(player_position, 0.03);
+    let dir = player_position - transform.translation;
+
+    transform.translation += dir * 2. * time.delta_seconds();
 }
